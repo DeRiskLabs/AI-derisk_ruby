@@ -23,9 +23,6 @@ last_reviewed_at: 2026-06-03
 ---
 
 
-# common_agent_skills/derisk_ruby/always-execute-rspec/SKILL.md
-
-
 # Always Execute RSpec Pattern
 
 Use this skill when writing or modifying Ruby specs.

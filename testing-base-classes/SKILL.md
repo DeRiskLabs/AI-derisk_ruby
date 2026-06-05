@@ -25,9 +25,6 @@ last_reviewed_at: 2026-06-04
 ---
 
 
-# common_agent_skills/derisk_ruby/testing-base-classes/SKILL.md
-
-
 # Testing Base Classes and Mixin Modules
 
 Use this skill to test abstract base classes and the mixin modules that compose them.

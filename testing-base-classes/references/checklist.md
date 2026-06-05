@@ -1,6 +1,3 @@
-# common_agent_skills/derisk_ruby/testing-base-classes/references/checklist.md
-
-
 # Review Checklist — Base Class / Mixin Module Specs
 
 

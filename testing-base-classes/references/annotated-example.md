@@ -1,6 +1,3 @@
-# common_agent_skills/derisk_ruby/testing-base-classes/references/annotated-example.md
-
-
 # Annotated Example — Base Class / Mixin Module Spec
 
 Two annotated specs: a mixin DSL module (`Auditable`) and an abstract base class

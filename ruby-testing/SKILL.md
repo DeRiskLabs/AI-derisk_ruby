@@ -17,9 +17,6 @@ last_reviewed_at: 2026-06-03
 ---
 
 
-# common_agent_skills/derisk_ruby/ruby-testing/SKILL.md
-
-
 # Ruby Testing
 
 Use this skill when writing or modifying Ruby specs.

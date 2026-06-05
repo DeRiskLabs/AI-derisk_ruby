@@ -1,6 +1,3 @@
-# common_agent_skills/derisk_ruby/always-execute-rspec/references/checklist.md
-
-
 # Always Execute Review Checklist
 
 Run through this before committing a spec.

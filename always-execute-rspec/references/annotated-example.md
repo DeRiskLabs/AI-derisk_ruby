@@ -1,6 +1,3 @@
-# common_agent_skills/derisk_ruby/always-execute-rspec/references/annotated-example.md
-
-
 # Annotated Examples
 
 Two complete specs showing the always_execute pattern and how the assertion target
