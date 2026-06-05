@@ -21,6 +21,4 @@ Gem::Specification.new do |spec|
   spec.files = Dir['INDEX.md', 'LICENSE.txt', '*/**/*'].select { |f| File.file?(f) }
 
   spec.require_paths = []
-
-  spec.add_dependency 'ai-derisk_common', '~> 0.1'
 end
