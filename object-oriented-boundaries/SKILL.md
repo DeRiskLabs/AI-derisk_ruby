@@ -4,7 +4,7 @@ title: Object-Oriented Boundaries
 description: What object-oriented programming actually is - message passing, encapsulated state, and clear protocols for crossing boundaries - and what a bounded context is at every scale, from a single object to a whole application. Load when designing objects, modules, or larger contexts, deciding what is public, or reasoning about where logic belongs.
 category: architecture
 status: active
-version: 1.0
+version: 1.1
 applies_to:
   - Ruby
 priority: REQUIRED
@@ -96,6 +96,9 @@ a boundary break.
 
 - Tell, don't ask: send a message stating what you want; do not interrogate state and
   decide on the object's behalf.
+- Separate commands from queries: a command changes state and reports its outcome (its
+  return value is not the contract); a query answers a question and changes nothing.
+  Nothing in between — a query with side effects is a command in disguise.
 - Depend on protocols, not constants: a collaborator is anything that answers the
   messages you send (duck typing). This is what makes boundaries swappable — in tests
   and in production.
