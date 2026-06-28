@@ -25,7 +25,7 @@ Use this skill when writing or modifying Ruby specs.
 ## Required Reading
 
 ```text
-common_agent_skills/derisk_ruby/always-execute-rspec/SKILL.md
+[[always-execute-rspec]]
 ```
 
 
@@ -214,7 +214,7 @@ asserts the action's aftermath.
 For action placement follow:
 
 ```text
-common_agent_skills/derisk_ruby/always-execute-rspec/SKILL.md
+[[always-execute-rspec]]
 ```
 
 

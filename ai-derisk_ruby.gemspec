@@ -8,7 +8,8 @@ Gem::Specification.new do |spec|
 
   spec.summary     = 'General Ruby skills for AI coding agents.'
   spec.description = 'The derisk_ruby skill collection: SKILL.md documents covering Ruby ' \
-                     'testing standards and test-driven development. Data-only gem; nothing to require.'
+                     'object design, testing standards, test-driven development, and ' \
+                     'characterization testing. Data-only gem; nothing to require.'
   spec.homepage    = 'https://github.com/DeriskLabs/AI-derisk_ruby'
   spec.license     = 'MIT'
 
@@ -18,7 +19,10 @@ Gem::Specification.new do |spec|
     'rubygems_mfa_required' => 'true',
   }
 
-  spec.files = Dir['INDEX.md', 'LICENSE.txt', '*/**/*'].select { |f| File.file?(f) }
+  spec.files = Dir['INDEX.md', 'GEMINI.md', 'LICENSE.txt', '*/**/*'].select { |f| File.file?(f) }
 
-  spec.require_paths = []
+  spec.require_paths = ['.']
+
+  spec.add_dependency 'ai-derisk_common', '~> 0.1'
+  spec.add_dependency 'ai-derisk_foundations', '~> 0.1'
 end

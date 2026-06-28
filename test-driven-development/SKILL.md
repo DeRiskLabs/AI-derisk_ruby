@@ -34,8 +34,8 @@ Before completing the task, audit what was built for behaviour no test exercises
 
 - Write the late test as if it had come first: state the behaviour, not the
   implementation's shape (the testing skills' rules apply unchanged).
-- Touching existing code that has no tests? Wrap characterization tests around its
-  current behaviour before changing it.
+- Touching existing code that has no useful tests? Use [[characterization-testing]] to
+  protect current observable behaviour before changing it.
 - After-the-fact coverage closes gaps the loop left; it is never a license to skip
   rule 1 for behaviour you could have stated up front.
 
@@ -48,4 +48,3 @@ Before marking work complete:
 * Tests pass.
 * Refactoring is complete.
 * No unnecessary production code was added.
-

@@ -1,140 +1,134 @@
 ---
 name: object-oriented-boundaries
-title: Object-Oriented Boundaries
-description: What object-oriented programming actually is - message passing, encapsulated state, and clear protocols for crossing boundaries - and what a bounded context is at every scale, from a single object to a whole application. Load when designing objects, modules, or larger contexts, deciding what is public, or reasoning about where logic belongs.
-category: architecture
+title: Ruby Object-Oriented Boundaries
+description: Use when designing or changing Ruby objects, choosing public methods, extracting collaborators, protecting encapsulated state, or deciding how objects should talk to each other through message protocols.
+category: object-design
 status: active
-version: 1.1
+version: 2.0
 applies_to:
   - Ruby
 priority: REQUIRED
 triggers:
-  - bounded context
+  - ruby object design
+  - object boundary
   - public interface
   - encapsulation
-  - where does this logic belong
   - extract a class
   - god object
   - message passing
+  - collaborator
 anti_triggers:
   - mechanical refactors with no design decision
 user_invocable: true
-last_reviewed_at: 2026-06-06
+last_reviewed_at: "2026-06-26"
 ---
 
 
-# Object-Oriented Boundaries
+# Ruby Object-Oriented Boundaries
 
-Object-oriented programming is **message passing, encapsulated state, and clear
-protocols for crossing boundaries**. Everything else is technique. Most training-data
-Ruby gets this wrong — bloated classes with huge, poorly defined public interfaces,
-callers groping through other objects' state — so this skill states the discipline
-explicitly. Internalize it; apply it at every scale.
+Read [[bounded-contexts]] when the decision is about architecture-scale ownership,
+component boundaries, gems, engines, services, or where behavior belongs.
+
+Use this skill for Ruby object design inside a known boundary.
+
+Ruby object-oriented code is message passing, encapsulated state, and clear public
+protocols. Most agent-generated Ruby gets this wrong by making large public
+interfaces, exposing state, or reaching through other objects to do their work.
 
 
-## The Definition (scale-free)
+## Core Rules
 
-A **bounded context** is any collection of code with a clear protocol for crossing
-its boundary, whose state and implementation details are unreachable except through
-its public interface.
+1. Design the object's public messages before its private methods.
+2. Keep state behind the object boundary.
+3. Tell collaborators what you need; do not ask for their state and decide for them.
+4. Depend on protocols: a collaborator is anything that answers the message you send.
+5. Extract collaborators when an object has multiple lower-level responsibilities that still belong behind the same public boundary.
+6. Keep the public interface small enough that callers can understand the object's role.
+7. Test the object through its public interface.
 
-That definition does not mention size. The discipline is identical at every scale:
 
-```text
-a well-formed object          # a class with a small, clear interface
-a namespaced module           # one file defines the interface;
-                              #   the rest are internal collaborators
-a gem                         # the module definition file carries the
-                              #   entry-point methods
-the whole application         # a bounded context to its external users
+## Public Interface
+
+Every public method is a promise to callers. Make public methods intentional.
+Private methods and internal collaborators are implementation details.
+
+Good public messages describe what the caller wants from the object:
+
+```ruby
+invoice.mark_paid(payment)
+registration.register(email:, name:)
 ```
 
-Contexts compose of contexts. A gem's public module fronts internal classes; each of
-those classes is itself a bounded context fronting its own privates. Boundaries are
-fractal.
+Weak public messages expose structure or force the caller to manage internals:
+
+```ruby
+invoice.status = "paid"
+registration.user_builder.profile_creator.role_assigner.call(...)
+```
+
+If callers need to know internal order, internal classes, or mutable state, the
+object boundary is leaking.
 
 
-## Invisibility — the test of a real boundary
+## Collaborators
 
-A caller sends `Accounts.new_account(...)`. It cannot tell — and has **no business
-knowing** — whether `Accounts` is:
+Do not extract objects just to make files smaller. Extract a collaborator when it
+names a real lower-level responsibility, hides detail, or lets the parent object
+keep a clear public role.
 
-- one object,
-- a module orchestrating dozens of internal classes, or
-- an HTTP request to a whole other application.
-
-If a caller can tell the difference, state or implementation is leaking through the
-boundary. This invisibility is what makes change safe: anything behind the interface
-can be rewritten without any caller noticing.
+The parent object's public interface should usually stay stable when you decompose
+its internals. If extraction forces outside callers to coordinate the new objects,
+you probably split the boundary instead of decomposing inside it.
 
 
-## One Thing, at Every Level
+## Commands and Queries
 
-The single-responsibility principle is usually taught for classes; it holds at every
-level of abstraction. A bounded context does **one thing at its level**:
-
-- a method's one thing is small;
-- a class's one thing is a cohesive responsibility;
-- a large context's one thing can be an entire business concept — *everything to do
-  with user registration* is one thing, even when it is many files and behaviours.
-
-If a context can only be described with "and", it is two contexts.
+- A command asks an object to do something or change state.
+- A query asks a question and should not change state.
+- Avoid query methods with hidden side effects.
+- Do not ignore meaningful command outcomes when the public contract includes them.
 
 
-## Decomposition Is an Implementation Detail
+## Testing
 
-When a context grows heavy, decompose it inside its boundary. Registration may become
-an interface manager, an authorization manager, and a role granter internally — and
-to every outside caller it remains exactly `registration`, unchanged.
+Test object behavior through public methods:
 
-The rule: **splitting a context into sub-contexts never changes its public
-interface.** If a split forces callers to change, it was not a decomposition — it was
-a boundary break.
+- incoming query: assert the return value
+- incoming command: assert public state change or observable outcome
+- outgoing command to a collaborator: assert the message when that collaboration is the behavior
+- outgoing query to a collaborator: stub the answer when needed
 
+Do not test private methods directly. Internal collaborators earn their own tests
+only when they have their own meaningful public boundary.
 
-## Messages, Not Structures
+See [[ruby-testing]] and [[always-execute-rspec]].
 
-- Tell, don't ask: send a message stating what you want; do not interrogate state and
-  decide on the object's behalf.
-- Separate commands from queries: a command changes state and reports its outcome (its
-  return value is not the contract); a query answers a question and changes nothing.
-  Nothing in between — a query with side effects is a command in disguise.
-- Depend on protocols, not constants: a collaborator is anything that answers the
-  messages you send (duck typing). This is what makes boundaries swappable — in tests
-  and in production.
-- Keep public interfaces small and intentional. Every public method is a promise you
-  must keep forever; privates are free.
-
-
-## Testing at the Edges
-
-Test a context **only through its boundary**. Sandi Metz's "Magic Tricks of Testing"
-is the canonical statement of this discipline and its grid governs every assertion:
-incoming query → assert the return value; incoming command → assert the resulting
-state; outgoing command → assert the message was sent; outgoing query → stub it;
-internals and privates → never directly.
-
-Internal collaborators earn their own specs only by being bounded contexts
-themselves — tested through *their* boundaries. See [[ruby-testing]] and
-[[always-execute-rspec]] (which carries the assertion-target grid).
+Use [[collaborator-extraction]] when an object should keep the same public role but
+needs internal decomposition.
 
 
 ## Smells
 
-- A caller reaching past an interface (`Accounts::Internal::Verifier` named outside
-  `Accounts`).
-- Internals leaking through return values (handing back a mutable internal structure
-  instead of an answer).
-- A public interface so large nobody can say what the context is for.
-- "And" in the one-line description of any context, at any scale.
-- Heavy dependence on abstractions you do not own, woven through code you do.
+- Public readers for state that callers mutate or use to make the object's decisions.
+- Call chains that walk through internal structure.
+- Public methods added only so tests can reach private behavior.
+- Collaborators named outside the boundary that owns them.
+- A class that keeps growing because no internal responsibility has been named.
+- A tiny extracted object with no clear protocol or reason to exist.
 
 
-## Why This Matters
+## Stop and Ask
 
-This is the discipline that separates working code from good engineering — and it is
-the key to human/AI development at speed. A context with a hard boundary and a small
-interface is one a developer (human or agent) can hold in full, reason about
-accurately, and change without fear. Everything that makes your application yours —
-the business logic, the wiring, what makes your business your business — belongs in
-bounded contexts you understand, you control, and you can work quickly in.
+Ask the human before deciding when:
+
+- extracting a collaborator would change the caller-facing interface
+- callers appear to need data owned by another object
+- the object depends heavily on framework classes or callbacks
+- you cannot tell whether behavior belongs in this object or a larger boundary
+
+
+## Completion Criteria
+
+Done when the object's public messages, owned state, collaborators, command/query
+shape, and public-interface tests are clear, with no caller depending on private
+methods or internal sequencing.
