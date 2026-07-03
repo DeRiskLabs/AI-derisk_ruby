@@ -19,7 +19,7 @@ triggers:
 anti_triggers:
   - brand new behavior with a clear desired contract
 user_invocable: true
-last_reviewed_at: 2026-06-26
+last_reviewed_at: "2026-06-26"
 ---
 
 

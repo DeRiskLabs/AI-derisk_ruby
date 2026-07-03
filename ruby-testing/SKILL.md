@@ -1,8 +1,7 @@
 ---
-
 name: ruby-testing
 title: Ruby Testing Standards
-description: Project-wide Ruby and RSpec testing standards - setup/action/assertion discipline, layered lets, deep context trees, one-liner contract pinning, boundary stubbing, and the complete-fast-ours coverage principle. Applies whenever writing or modifying Ruby specs.
+description: Project-wide Ruby and RSpec testing standards - layered lets, deep context trees, matcher selection, one-liner contract pinning, boundary stubbing, doubles, and the complete-fast-ours coverage principle. Applies whenever writing or modifying Ruby specs.
 category: testing
 status: active
 version: 2.4
@@ -12,14 +11,16 @@ applies_to:
   - RSpec
 priority: REQUIRED
 user_invocable: true
-last_reviewed_at: 2026-06-03
-
+last_reviewed_at: "2026-06-03"
 ---
 
 
 # Ruby Testing
 
-Use this skill when writing or modifying Ruby specs.
+Use this skill when writing or modifying Ruby specs. It owns the project-wide testing
+**standards**; the execute-pattern **mechanics** — where the action, setup, and stubbing go,
+one expectation per `it`, the assertion-target grid, request specs — are owned by
+[[always-execute-rspec]]. Load both; this skill does not restate the mechanics.
 
 
 ## Required Reading
@@ -40,62 +41,16 @@ are waste.
 
 ## Non-Negotiable Rules
 
-* Use RSpec.
-* Use `describe` / `context` blocks to separate behaviours and cases.
-* Use `let`, `let!`, `subject`, and `before` for setup.
-* Never put setup inside an `it` block.
-* Never put stubbing inside an `it` block.
-* Never call the action under test inside an `it` block (see the sanctioned exceptions
-  in always-execute-rspec).
-* Prefer the always_execute gem; the action under test belongs in `execute`.
-* Read the action's return value via the `execute_result` let; do not use instance variables in specs.
-* Each `it` block should contain one expectation.
+The execute-pattern mechanics are owned by [[always-execute-rspec]] (action inside `execute`,
+setup/stubbing in `before`/`let`, one expectation per `it`, one action per context, results via
+the `execute_result` let — never instance variables). This skill adds the project-wide
+standards:
+
+* Use RSpec, with `describe` / `context` blocks separating behaviours and cases.
 * Use single-quoted strings unless interpolation is required.
 * Test behaviour, not implementation.
-* Test through public interfaces.
-* Do not test private methods directly.
+* Test through public interfaces; do not test private methods directly.
 * Do not stub the object under test.
-
-
-## Setup Rules
-
-Setup belongs in:
-
-```text
-let
-let!
-subject
-before
-```
-
-Setup does not belong in:
-
-```text
-it
-```
-
-Good:
-
-```ruby
-let(:repository) do
-  instance_double(Repository)
-end
-
-before do
-  allow(repository).to receive(:find).and_return(record)
-end
-```
-
-Bad:
-
-```ruby
-it 'returns the record' do
-  repository = instance_double(Repository)
-  allow(repository).to receive(:find).and_return(record)
-
-  expect(execute_result).to eq(record)
-end
-```
 
 
 ## Layered Lets
@@ -134,32 +89,10 @@ context and its own examples.
 
 ## Assertion Rules
 
-An `it` block should contain assertions only — one expectation per `it`.
-
-Good:
-
-```ruby
-it 'returns ok' do
-  expect(response).to have_http_status(:ok)
-end
-
-it 'returns JSON API data' do
-  expect(parsed_response.fetch('data')).to be_an(Array)
-end
-```
-
-Bad:
-
-```ruby
-it 'returns a valid response' do
-  expect(response).to have_http_status(:ok)
-  expect(parsed_response.fetch('data')).to be_an(Array)
-end
-```
-
-Choose the assertion target from the boundary grid in always-execute-rspec (return value
-for incoming queries, state change for incoming commands, `have_received` on a spy for
-outgoing commands; stub outgoing queries; never assert messages to self).
+An `it` block contains one expectation. Choose the assertion target from the boundary grid in
+[[always-execute-rspec]] — return value for incoming queries, state change for incoming
+commands, `have_received` on a spy for outgoing commands; stub outgoing queries; never assert
+messages to self.
 
 
 ## Matcher Selection
@@ -197,53 +130,14 @@ it { is_expected.to validate_presence_of(:email) }
 it { is_expected.not_to be_valid }
 ```
 
-They are self-contained query expectations (see always-execute-rspec) and need no
+They are self-contained query expectations (see [[always-execute-rspec]]) and need no
 `execute` or docstring.
-
-
-## Action Rules
-
-The action under test must not be called inside an `it` block.
-
-The sanctioned exceptions — raising actions (block-expectation form), constructors
-(allocate + `execute { send(:initialize) }`), delta assertions (`change` block
-matchers), and self-contained query expectations — are defined in the Exceptions
-section of always-execute-rspec. `execute` remains mandatory whenever an example
-asserts the action's aftermath.
-
-For action placement follow:
-
-```text
-[[always-execute-rspec]]
-```
-
-
-## Stubbing Rules
-
-All stubbing belongs in setup, usually `before`.
-
-Good:
-
-```ruby
-before do
-  allow(repository).to receive(:find).with(id).and_return(record)
-end
-```
-
-Bad:
-
-```ruby
-it 'returns the record' do
-  allow(repository).to receive(:find).and_return(record)
-
-  expect(execute_result).to eq(record)
-end
-```
 
 
 ## Boundary Rules
 
-Stub at architectural boundaries:
+All stubbing belongs in setup, usually `before` (see [[always-execute-rspec]]). Stub at
+architectural boundaries:
 
 * repositories
 * gateways
@@ -318,10 +212,6 @@ line either side.
 
 Do not:
 
-* put setup inside `it`
-* put stubbing inside `it`
-* put the action under test inside `it` (sanctioned exceptions aside)
-* use multiple expectations in one `it` block
 * flatten or skip outcome-changing input combinations
 * test private methods directly
 * test the framework, the standard library, or gems instead of your own code
@@ -331,3 +221,6 @@ Do not:
 * use shared examples to hide a spec's own logic
 * overuse `before`
 * assert implementation details when behaviour can be asserted
+
+(For the execute-pattern don'ts — action, setup, or stubbing inside `it`, and multiple
+expectations per `it` — see [[always-execute-rspec]].)

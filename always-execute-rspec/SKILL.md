@@ -19,13 +19,16 @@ triggers:
 anti_triggers:
   - non-Ruby test suites
 user_invocable: true
-last_reviewed_at: 2026-06-03
+last_reviewed_at: "2026-06-03"
 ---
 
 
 # Always Execute RSpec Pattern
 
-Use this skill when writing or modifying Ruby specs.
+Use this skill when writing or modifying Ruby specs. It owns the execute-pattern **mechanics**
+(setup → execute → assert, the assertion-target grid, request specs); the project-wide testing
+**standards** (coverage principle, layered lets, matcher selection, boundaries, doubles, style)
+live in [[ruby-testing]].
 
 Supporting references in this skill (load when writing specs with this pattern):
 

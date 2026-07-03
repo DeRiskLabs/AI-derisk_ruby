@@ -34,7 +34,7 @@ Run through this before committing a spec.
       call itself (one-liners, return-value checks).
 - [ ] `#initialize` tested only where it is the contract (base classes / DSL modules),
       via `allocate` in subject + `execute { object.send(:initialize, **args) }` —
-      see `testing-base-classes`.
+      see [[testing-base-classes]].
 
 
 ## Smells

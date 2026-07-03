@@ -21,7 +21,7 @@ anti_triggers:
   - model spec
   - request spec
 user_invocable: true
-last_reviewed_at: 2026-06-04
+last_reviewed_at: "2026-06-04"
 ---
 
 
@@ -131,7 +131,7 @@ describe '#initialize' do
 end
 ```
 
-Raising cases use the block-expectation form inside `it` (see always-execute-rspec
+Raising cases use the block-expectation form inside `it` (see [[always-execute-rspec]]
 Exceptions), still through `allocate` + `send` so no fixture class is constructed twice:
 
 ```ruby
