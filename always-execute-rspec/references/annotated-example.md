@@ -145,6 +145,24 @@ it 'returns the territory' do
   expect(@execute_result).to eq(territory)
 end
 
+# BAD: using execute(:result) as a dressed-up subject(:result) and touring
+# the returned object's fields instead of choosing the boundary assertion.
+execute(:result) do
+  packager.package(source: source, entrypoint: entrypoint, version_id: version_id)
+end
+
+it 'records the checksum' do
+  expect(result.checksum).to eq(expected_checksum)
+end
+
+it 'records the entrypoint' do
+  expect(result.entrypoint).to eq('handler')
+end
+
+it 'sets packaged_at' do
+  expect(result.packaged_at).not_to be_nil
+end
+
 # BAD: stubbing inside it
 it 'returns the territory' do
   allow(repository).to receive(:find).and_return(territory)
