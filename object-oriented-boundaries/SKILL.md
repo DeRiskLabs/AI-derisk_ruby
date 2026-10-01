@@ -4,7 +4,7 @@ title: Ruby Object-Oriented Boundaries
 description: Use when designing or changing Ruby objects, choosing public methods, extracting collaborators, protecting encapsulated state, or deciding how objects should talk to each other through message protocols.
 category: object-design
 status: active
-version: 2.0
+version: 2.2
 applies_to:
   - Ruby
 priority: REQUIRED
@@ -20,7 +20,7 @@ triggers:
 anti_triggers:
   - mechanical refactors with no design decision
 user_invocable: true
-last_reviewed_at: "2026-06-26"
+last_reviewed_at: "2026-10-01"
 ---
 
 
@@ -47,10 +47,39 @@ interfaces, exposing state, or reaching through other objects to do their work.
 7. Test the object through its public interface.
 
 
+## Role and Ownership Preflight
+
+Before adding several related objects, write a small inventory:
+
+```text
+object / operation       role                     owner
+package input            form                     Definition
+manifest                 imported document model  Definition
+Object Type              domain value             Ontology
+```
+
+Classify each proposed object as a form, imported document model, domain value,
+validator, builder, use case, or boundary adapter. If the role is unclear, stop before
+creating the class. Do not use inheritance merely to borrow convenient behavior from a
+different role.
+
+When several root-level class names repeat a prefix, pause and decide whether they form:
+
+1. one internal namespace with a shared lifecycle;
+2. a separate bounded context with its own public protocol; or
+3. unrelated objects whose names are concealing weak responsibilities.
+
+Organize only after deciding which is true. A tidy namespace does not repair incorrect
+ownership.
+
+
 ## Public Interface
 
 Every public method is a promise to callers. Make public methods intentional.
 Private methods and internal collaborators are implementation details.
+
+Leave two blank lines before a `private` or `protected` declaration. This visually
+separates the public protocol from implementation details.
 
 Good public messages describe what the caller wants from the object:
 
@@ -79,6 +108,18 @@ keep a clear public role.
 The parent object's public interface should usually stay stable when you decompose
 its internals. If extraction forces outside callers to coordinate the new objects,
 you probably split the boundary instead of decomposing inside it.
+
+For an optional injected collaborator, default the keyword to `nil` and construct
+the default in the method body:
+
+```ruby
+def initialize(parser: nil)
+  @parser = parser || DocumentParser.new
+end
+```
+
+Do not instantiate collaborators in parameter defaults. Keeping executable defaults
+out of the signature makes dependency injection explicit and the interface easier to read.
 
 
 ## Commands and Queries
@@ -115,6 +156,8 @@ needs internal decomposition.
 - Collaborators named outside the boundary that owns them.
 - A class that keeps growing because no internal responsibility has been named.
 - A tiny extracted object with no clear protocol or reason to exist.
+- Several root constants with the same domain prefix and no explicit ownership decision.
+- Inheritance used to borrow framework methods from an object with a different role.
 
 
 ## Stop and Ask

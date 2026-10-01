@@ -4,14 +4,14 @@ title: Ruby Testing Standards
 description: Project-wide Ruby and RSpec testing standards - layered lets, deep context trees, matcher selection, one-liner contract pinning, boundary stubbing, doubles, and the complete-fast-ours coverage principle. Applies whenever writing or modifying Ruby specs.
 category: testing
 status: active
-version: 2.4
+version: 2.5
 applies_to:
   - Ruby
   - Rails
   - RSpec
 priority: REQUIRED
 user_invocable: true
-last_reviewed_at: "2026-06-03"
+last_reviewed_at: "2026-10-01"
 ---
 
 
@@ -50,7 +50,9 @@ standards:
 * Use single-quoted strings unless interpolation is required.
 * Test behaviour, not implementation.
 * Test through public interfaces; do not test private methods directly.
-* Do not stub the object under test.
+* Do not stub behaviour on the object under test. A private method whose sole role is
+  resolving an external callable dependency may be substituted in an orchestration spec;
+  see the relevant layer-specific testing skill.
 
 
 ## Layered Lets
@@ -93,6 +95,23 @@ An `it` block contains one expectation. Choose the assertion target from the bou
 [[always-execute-rspec]] — return value for incoming queries, state change for incoming
 commands, `have_received` on a spy for outgoing commands; stub outgoing queries; never assert
 messages to self.
+
+
+## Message Classification Checkpoint
+
+Before writing `have_received`, classify the message in relation to the object under test:
+
+1. incoming or outgoing;
+2. command or query.
+
+Reserve `have_received` for outgoing commands. An outgoing query is setup: stub the answer the
+object needs, then assert the object under test's public result or observable outcome. Do not
+assert that an outgoing query was or was not sent; doing so couples the spec to the object's
+current implementation rather than its behaviour.
+
+When a new object has a meaningful public boundary, add a focused spec for that incoming message
+in the same change. A passive value object may instead be exercised through the builder or public
+object that constructs it, provided its complete public contract is covered there.
 
 
 ## Matcher Selection
@@ -221,6 +240,8 @@ Do not:
 * use shared examples to hide a spec's own logic
 * overuse `before`
 * assert implementation details when behaviour can be asserted
+* assert that an outgoing query was or was not sent
+* introduce an object with a meaningful public boundary and cover it only transitively
 
 (For the execute-pattern don'ts — action, setup, or stubbing inside `it`, and multiple
 expectations per `it` — see [[always-execute-rspec]].)
